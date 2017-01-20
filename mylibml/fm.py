@@ -39,7 +39,7 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
     def _predict(self, x, w, V):
         prediction = np.dot(w, x) + 1/2*np.sum(np.square(np.dot(V.T, x)) - np.dot(np.square(V.T), np.square(x)))
         if np.isnan(prediction):
-            if self.VERBOSE: print('y_hat is nan.')
+            if self.VERBOSE: print('y_hat is nan.', flush=True)
             raise RuntimeError()
         return prediction
 
@@ -60,9 +60,9 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
             for loop_index in range(self.LOOP):
                 old_error = error
                 start = time.time()
-                if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='')
+                if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
                 for n in range(N):
-                    if self.VERBOSE and n % int(N / 10) == 0: print('{0}%...'.format(int(100 * n / N)), end='')
+                    if self.VERBOSE and n % int(N / 10) == 0: print('{0}%...'.format(int(100 * n / N)), end='', flush=True)
                     y_pred = self._predict(X[n], w, V)
                     e = y_pred - y[n]
                     beta1t = beta1t * self.BETA1
@@ -86,7 +86,7 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
                     print('100% error=> {0} [{1}(sec/it)]'.format(
                         format(error, '.5f'),
                         format(time.time() - start, '.2f')
-                    ))
+                    ), flush=True)
                 if (self.THRESHOLD < error / old_error and error / old_error <= 1) \
                         or (self.THRESHOLD < old_error / error and old_error / error <= 1):
                     saturation_counter += 1
@@ -95,11 +95,11 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
                 else:
                     saturation_counter = 0
             print('Finished. error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
-                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')))
+                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')), flush=True)
             self.coef = w, V
             return self
         except (KeyboardInterrupt, RuntimeError):
-            print('Canceled')
+            print('Canceled', flush=True)
             self.coef = w, V
             return self
 
@@ -124,9 +124,9 @@ class PropensityFactorizationMachines(FactorizationMachines):
             for loop_index in range(self.LOOP):
                 old_error = error
                 start = time.time()
-                if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='')
+                if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
                 for n in range(N):
-                    if self.VERBOSE and n % int(N / 10) == 0: print('{0}%...'.format(int(100 * n / N)), end='')
+                    if self.VERBOSE and n % int(N / 10) == 0: print('{0}%...'.format(int(100 * n / N)), end='', flush=True)
                     y_pred = self._predict(X[n], w, V)
                     e = y_pred - y[n]
                     beta1t = beta1t * self.BETA1
@@ -150,7 +150,7 @@ class PropensityFactorizationMachines(FactorizationMachines):
                     print('100% error=> {0} [{1}(sec/it)]'.format(
                         format(error, '.5f'),
                         format(time.time() - start, '.2f')
-                    ))
+                    ), flush=True)
                 if (self.THRESHOLD < error / old_error and error / old_error <= 1) \
                         or (self.THRESHOLD < old_error / error and old_error / error <= 1):
                     saturation_counter += 1
@@ -159,11 +159,11 @@ class PropensityFactorizationMachines(FactorizationMachines):
                 else:
                     saturation_counter = 0
             print('Finished. error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
-                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')))
+                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')), flush=True)
             self.coef = w, V
             return self
         except (KeyboardInterrupt, RuntimeError):
-            print('Canceled')
+            print('Canceled', flush=True)
             self.coef = w, V
             return self
 

@@ -39,7 +39,7 @@ class MatrixFactorization(BaseEstimator, RegressorMixin):
         i, j = tuple(np.where(x == 1)[0])
         prediction = np.dot(V[i], V[j])
         if np.isnan(prediction):
-            print('prediction is nan')
+            print('prediction is nan', flush=True)
             raise RuntimeError()
         return prediction
 
@@ -58,9 +58,9 @@ class MatrixFactorization(BaseEstimator, RegressorMixin):
             for loop_index in range(self.LOOP):
                 start = time.time()
                 old_error = error
-                if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='')
+                if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
                 for it, n in enumerate(np.random.permutation(range(N))):
-                    if self.VERBOSE and it % int(N / 10) == 0: print('{0}%...'.format(int(100 * it / N)), end='')
+                    if self.VERBOSE and it % int(N / 10) == 0: print('{0}%...'.format(int(100 * it / N)), end='', flush=True)
                     y_pred = self._predict(X[n], V)
                     e = y_pred - y[n]
                     i, j = tuple(np.where(X[n] == 1)[0])
@@ -85,7 +85,7 @@ class MatrixFactorization(BaseEstimator, RegressorMixin):
                     print('100% error=> {0} [{1}(sec/it)]'.format(
                         format(error, '.5f'),
                         format(time.time() - start, '.2f')
-                    ))
+                    ), flush=True)
                 if (self.THRESHOLD < error / old_error and error / old_error <= 1) \
                         or (self.THRESHOLD < old_error / error and old_error / error <= 1):
                     saturation_counter += 1
@@ -94,11 +94,11 @@ class MatrixFactorization(BaseEstimator, RegressorMixin):
                 else:
                     saturation_counter = 0
             print('Finished. error => {0} [K={1}, LAMBDA={2}, {3}(sec)] '.format(
-                format(error, '.5f'), self.K, self.LAMBDA, format(time.time() - fit_start, '.2f')))
+                format(error, '.5f'), self.K, self.LAMBDA, format(time.time() - fit_start, '.2f')), flush=True)
             self.coef = V
             return self
         except (KeyboardInterrupt, RuntimeError):
-            print('Cancelled')
+            print('Cancelled', flush=True)
             self.coef = V
             return self
 
@@ -121,9 +121,9 @@ class PropensityMatrixFactorization(MatrixFactorization):
             for loop_index in range(self.LOOP):
                 start = time.time()
                 old_error = error
-                if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='')
+                if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
                 for it, n in enumerate(np.random.permutation(range(N))):
-                    if self.VERBOSE and it % int(N / 10) == 0: print('{0}%...'.format(int(100 * it / N)), end='')
+                    if self.VERBOSE and it % int(N / 10) == 0: print('{0}%...'.format(int(100 * it / N)), end='', flush=True)
                     y_pred = self._predict(X[n], V)
                     e = y_pred - y[n]
                     i, j = tuple(np.where(X[n] == 1)[0])
@@ -148,7 +148,7 @@ class PropensityMatrixFactorization(MatrixFactorization):
                     print('100% error=> {0} [{1}(sec/it)]'.format(
                         format(error, '.5f'),
                         format(time.time() - start, '.2f')
-                    ))
+                    ), flush=True)
                 if (self.THRESHOLD < error / old_error and error / old_error <= 1) \
                         or (self.THRESHOLD < old_error / error and old_error / error <= 1):
                     saturation_counter += 1
@@ -157,10 +157,10 @@ class PropensityMatrixFactorization(MatrixFactorization):
                 else:
                     saturation_counter = 0
             print('Finished. error => {0} [K={1}, LAMBDA={2}, {3}(sec)] '.format(
-                format(error, '.5f'), self.K, self.LAMBDA, format(time.time() - fit_start, '.2f')))
+                format(error, '.5f'), self.K, self.LAMBDA, format(time.time() - fit_start, '.2f')), flush=True)
             self.coef = V
             return self
         except (KeyboardInterrupt, RuntimeError):
-            print('Cancelled')
+            print('Cancelled', flush=True)
             self.coef = V
             return self
