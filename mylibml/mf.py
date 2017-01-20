@@ -44,6 +44,7 @@ class MatrixFactorization(BaseEstimator, RegressorMixin):
         return prediction
 
     def fit(self, X, y):
+        fit_start = time.time()
         saturation_counter = 0
         N, D = X.shape
         assert((X.sum(axis=1) == np.array([2]*N)).all()) # X は全ての行で2つだけ1が立つ
@@ -92,7 +93,8 @@ class MatrixFactorization(BaseEstimator, RegressorMixin):
                         break
                 else:
                     saturation_counter = 0
-            print('Finished')
+            print('Finished. error => {0} [K={1}, LAMBDA={2}, {3}(sec)] '.format(
+                format(error, '.5f'), self.K, self.LAMBDA, format(time.time() - fit_start, '.2f')))
             self.coef = V
             return self
         except (KeyboardInterrupt, RuntimeError):
@@ -102,6 +104,7 @@ class MatrixFactorization(BaseEstimator, RegressorMixin):
 
 class PropensityMatrixFactorization(MatrixFactorization):
     def fit(self, X, y):
+        fit_start = time.time()
         saturation_counter = 0
         p = X[:, -1]
         assert((0 <= p).all() and (p <= 1).all()) # p は確率
@@ -153,7 +156,8 @@ class PropensityMatrixFactorization(MatrixFactorization):
                         break
                 else:
                     saturation_counter = 0
-            print('Finished')
+            print('Finished. error => {0} [K={1}, LAMBDA={2}, {3}(sec)] '.format(
+                format(error, '.5f'), self.K, self.LAMBDA, format(time.time() - fit_start, '.2f')))
             self.coef = V
             return self
         except (KeyboardInterrupt, RuntimeError):

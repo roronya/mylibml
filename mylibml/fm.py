@@ -44,6 +44,7 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
         return prediction
 
     def fit(self, X, y):
+        fit_start = time.time()
         saturation_counter = 0
         N, D = X.shape
         w = np.random.rand(D)
@@ -93,8 +94,8 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
                         break
                 else:
                     saturation_counter = 0
-            print('Finished. error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3}] '.format(
-                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V ))
+            print('Finished. error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
+                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')))
             self.coef = w, V
             return self
         except (KeyboardInterrupt, RuntimeError):
@@ -104,6 +105,7 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
 
 class PropensityFactorizationMachines(FactorizationMachines):
     def fit(self, X, y):
+        fit_start = time.time()
         saturation_counter = 0
         p = X[:, -1]
         assert((0 <= p).all() and (p <= 1).all()) # p は確率
@@ -156,8 +158,8 @@ class PropensityFactorizationMachines(FactorizationMachines):
                         break
                 else:
                     saturation_counter = 0
-            print('Finished. error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3}] '.format(
-                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V ))
+            print('Finished. error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
+                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')))
             self.coef = w, V
             return self
         except (KeyboardInterrupt, RuntimeError):
