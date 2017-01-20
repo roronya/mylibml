@@ -39,7 +39,7 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
     def _predict(self, x, w, V):
         prediction = np.dot(w, x) + 1/2*np.sum(np.square(np.dot(V.T, x)) - np.dot(np.square(V.T), np.square(x)))
         if np.isnan(prediction):
-            if self.VERBOSE: print('y_hat is nan.', flush=True)
+            if self.VERBOSE: print('prediction is nan', flush=True)
             raise RuntimeError()
         return prediction
 
