@@ -33,11 +33,11 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
         return self
 
     def predict(self, X):
-        w, V = self.coef
-        return np.array([self._predict(x, w, V) for x in X])
+        w0, w, V = self.coef
+        return np.array([self._predict(x, w0, w, V) for x in X])
 
-    def _predict(self, x, w, V):
-        prediction = np.dot(w, x) + 1/2*np.sum(np.square(np.dot(V.T, x)) - np.dot(np.square(V.T), np.square(x)))
+    def _predict(self, x, w0, w, V):
+        prediction = w0 + np.dot(w, x) + 1/2*np.sum(np.square(np.dot(V.T, x)) - np.dot(np.square(V.T), np.square(x)))
         if np.isnan(prediction):
             if self.VERBOSE: print('prediction is nan', flush=True)
             raise RuntimeError()
@@ -47,9 +47,12 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
         fit_start = time.time()
         saturation_counter = 0
         N, D = X.shape
+        w0 = np.random.rand()
         w = np.random.rand(D)
         V = np.random.rand(D, self.K)
-        self.coef = w, V
+        self.coef = w0, w, V
+        m_w0 = 0
+        v_w0 = 0
         m_w = np.zeros(D)
         v_w = np.zeros(D)
         m_V = np.zeros((D, self.K))
@@ -63,10 +66,16 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
                 if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
                 for n in range(N):
                     if self.VERBOSE and n % int(N / 10) == 0: print('{0}%...'.format(int(100 * n / N)), end='', flush=True)
-                    y_pred = self._predict(X[n], w, V)
+                    y_pred = self._predict(X[n], w0, w, V)
                     e = y_pred - y[n]
                     beta1t = beta1t * self.BETA1
                     beta2t = beta2t * self.BETA2
+                    g_w0 = e + self.LAMBDA_w*w0
+                    m_w0 = self.BETA1*m_w0 + (1-self.BETA1)*g_w0
+                    v_w0 = self.BETA2*v_w0 + (1-self.BETA2)*np.square(g_w0)
+                    mhatt_w0 = m_w0/(1-beta1t)
+                    vhatt_w0 = v_w0/(1-beta2t)
+                    w0 = w0 - self.ETA*mhatt_w0/(np.sqrt(vhatt_w0)+self.EPS)
                     g_w = e*X[n] + self.LAMBDA_w*w
                     m_w = self.BETA1*m_w + (1-self.BETA1)*g_w
                     v_w = self.BETA2*v_w + (1-self.BETA2)*np.square(g_w)
@@ -80,7 +89,7 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
                     mhatt_V = m_V[mask]/(1-beta1t)
                     vhatt_V = v_V[mask]/(1-beta2t)
                     V[mask] = V[mask] - self.ETA*mhatt_V/(np.sqrt(vhatt_V)+self.EPS)
-                self.coef = w, V
+                self.coef = w0, w, V
                 error = mean_squared_error(y, self.predict(X))
                 if self.VERBOSE:
                     print('100% error=> {0} [{1}(sec/it)]'.format(
@@ -96,11 +105,11 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
                     saturation_counter = 0
             print('Finished. error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
                 format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')), flush=True)
-            self.coef = w, V
+            self.coef = w0, w, V
             return self
         except (KeyboardInterrupt, RuntimeError):
             print('Canceled', flush=True)
-            self.coef = w, V
+            self.coef = w0, w, V
             return self
 
 class PropensityFactorizationMachines(FactorizationMachines):
@@ -111,9 +120,12 @@ class PropensityFactorizationMachines(FactorizationMachines):
         assert((0 <= p).all() and (p <= 1).all()) # p は確率
         X = X[:, :-1]
         N, D = X.shape
+        w0 = np.random.rand()
         w = np.random.rand(D)
         V = np.random.rand(D, self.K)
         self.coef = w, V
+        m_w0 = 0
+        v_w0 = 0
         m_w = np.zeros(D)
         v_w = np.zeros(D)
         m_V = np.zeros((D, self.K))
@@ -127,10 +139,16 @@ class PropensityFactorizationMachines(FactorizationMachines):
                 if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
                 for n in range(N):
                     if self.VERBOSE and n % int(N / 10) == 0: print('{0}%...'.format(int(100 * n / N)), end='', flush=True)
-                    y_pred = self._predict(X[n], w, V)
+                    y_pred = self._predict(X[n], w0, w, V)
                     e = y_pred - y[n]
                     beta1t = beta1t * self.BETA1
                     beta2t = beta2t * self.BETA2
+                    g_w0 = 1/p[n]*(e + self.LAMBDA_w*w0)
+                    m_w0 = self.BETA1*m_w0 + (1-self.BETA1)*g_w0
+                    v_w0 = self.BETA2*v_w0 + (1-self.BETA2)*np.square(g_w0)
+                    mhatt_w0 = m_w0/(1-beta1t)
+                    vhatt_w0 = v_w0/(1-beta2t)
+                    w0 = w0 - self.ETA*mhatt_w0/(np.sqrt(vhatt_w0)+self.EPS)
                     g_w = 1/p[n]*(e*X[n] + self.LAMBDA_w*w)
                     m_w = self.BETA1*m_w + (1-self.BETA1)*g_w
                     v_w = self.BETA2*v_w + (1-self.BETA2)*np.square(g_w)
@@ -144,7 +162,7 @@ class PropensityFactorizationMachines(FactorizationMachines):
                     mhatt_V = m_V[mask]/(1-beta1t)
                     vhatt_V = v_V[mask]/(1-beta2t)
                     V[mask] = V[mask] - self.ETA*mhatt_V/(np.sqrt(vhatt_V)+self.EPS)
-                self.coef = w, V
+                self.coef = w0, w, V
                 error = mean_squared_error(y, self.predict(X))
                 if self.VERBOSE:
                     print('100% error=> {0} [{1}(sec/it)]'.format(
@@ -160,16 +178,16 @@ class PropensityFactorizationMachines(FactorizationMachines):
                     saturation_counter = 0
             print('Finished. error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
                 format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')), flush=True)
-            self.coef = w, V
+            self.coef = w0, w, V
             return self
         except (KeyboardInterrupt, RuntimeError):
             print('Canceled', flush=True)
-            self.coef = w, V
+            self.coef = w0, w, V
             return self
 
 class FactorizationMachinesLogisticRegression(FactorizationMachines, ClassifierMixin):
     def _sigmoid(self, y):
         return 1/(1+1/np.exp(y))
 
-    def _predict(self, x, w, V):
-        return self._sigmoid(np.dot(w, x) + 1/2*np.sum(np.square(np.dot(V.T, x)) - np.dot(np.square(V.T), np.square(x))))
+    def _predict(self, x, w0, w, V):
+        return w0 + self._sigmoid(np.dot(w, x) + 1/2*np.sum(np.square(np.dot(V.T, x)) - np.dot(np.square(V.T), np.square(x))))
