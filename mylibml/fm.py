@@ -140,23 +140,23 @@ class PropensityFactorizationMachines(FactorizationMachines):
                 for n in range(N):
                     if self.VERBOSE and n % int(N / 10) == 0: print('{0}%...'.format(int(100 * n / N)), end='', flush=True)
                     y_pred = self._predict(X[n], w0, w, V)
-                    e = 1/p[n]*(y_pred - y[n])
+                    e = y_pred - y[n]
                     beta1t = beta1t * self.BETA1
                     beta2t = beta2t * self.BETA2
-                    g_w0 = e + self.LAMBDA_w*w0
+                    g_w0 = 1/p[n]*(e + self.LAMBDA_w*w0)
                     m_w0 = self.BETA1*m_w0 + (1-self.BETA1)*g_w0
                     v_w0 = self.BETA2*v_w0 + (1-self.BETA2)*np.square(g_w0)
                     mhatt_w0 = m_w0/(1-beta1t)
                     vhatt_w0 = v_w0/(1-beta2t)
                     w0 = w0 - self.ETA*mhatt_w0/(np.sqrt(vhatt_w0)+self.EPS)
-                    g_w = e*X[n] + self.LAMBDA_w*w
+                    g_w = 1/p[n]*(e*X[n] + self.LAMBDA_w*w)
                     m_w = self.BETA1*m_w + (1-self.BETA1)*g_w
                     v_w = self.BETA2*v_w + (1-self.BETA2)*np.square(g_w)
                     mhatt_w = m_w/(1-beta1t)
                     vhatt_w = v_w/(1-beta2t)
                     w = w - self.ETA*mhatt_w/(np.sqrt(vhatt_w)+self.EPS)
                     mask = np.where(X[n] != 0)[0]
-                    g_V = e*(X[n][mask][:,np.newaxis]*np.dot(V[mask].T, X[n][mask]) - V[mask]*np.square(X[n][mask][:,np.newaxis])) + self.LAMBDA_V*V[mask]
+                    g_V = 1/p[n]*(e*(X[n][mask][:,np.newaxis]*np.dot(V[mask].T, X[n][mask]) - V[mask]*np.square(X[n][mask][:,np.newaxis])) + self.LAMBDA_V*V[mask])
                     m_V[mask] = self.BETA1*m_V[mask] + (1-self.BETA1)*g_V
                     v_V[mask] = self.BETA2*v_V[mask] + (1-self.BETA2)*np.square(g_V)
                     mhatt_V = m_V[mask]/(1-beta1t)
