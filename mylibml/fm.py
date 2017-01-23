@@ -113,6 +113,13 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
             return self
 
 class PropensityFactorizationMachines(FactorizationMachines):
+    def predict(self, X):
+        p = X[:, -1]
+        assert((0 <= p).all() and (p <= 1).all()) # p は確率
+        X = X[:, :-1]
+        w0, w, V = self.coef
+        return np.array([self._predict(x, w0, w, V) for x in X])
+
     def fit(self, X, y):
         fit_start = time.time()
         saturation_counter = 0
@@ -163,7 +170,8 @@ class PropensityFactorizationMachines(FactorizationMachines):
                     vhatt_V = v_V[mask]/(1-beta2t)
                     V[mask] = V[mask] - self.ETA*mhatt_V/(np.sqrt(vhatt_V)+self.EPS)
                 self.coef = w0, w, V
-                error = mean_squared_error(y, self.predict(X))
+                y_pred = np.array([self._predict(x, w0, w, V) for x in X])
+                error = mean_squared_error(y, y_pred)
                 if self.VERBOSE:
                     print('100% error=> {0} [{1}(sec/it)]'.format(
                         format(error, '.5f'),

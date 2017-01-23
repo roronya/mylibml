@@ -89,7 +89,7 @@ class TestPropensityFactorizationMachines(TestFactorizationMachines):
     def test_fit(self):
         PFMs = mylibml.fm.PropensityFactorizationMachines(K=5)
         PFMs.fit(self.FMs_TRAIN.X.assign(propensity=1).values, self.FMs_TRAIN.y.values)
-        y_pred = PFMs.predict(self.FMs_TEST.X.values)
+        y_pred = PFMs.predict(self.FMs_TEST.X.assign(propensity=1).values)
         error = mean_squared_error(y_pred, self.FMs_TEST.y.values)
         print('PFMs error =>', end='')
         print(error)
