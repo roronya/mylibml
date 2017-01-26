@@ -70,36 +70,20 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
                     if self.VERBOSE and n % int(N / 10) == 0: print('{0}%...'.format(int(100 * n / N)), end='', flush=True)
                     y_pred = self._predict(X[n], w0, w, V)
                     e = y_pred - y[n]
-
                     beta1t = beta1t * self.BETA1
                     beta2t = beta2t * self.BETA2
-
                     g_w0 = e
                     m_w0 = self.BETA1*m_w0 + (1-self.BETA1)*g_w0
                     v_w0 = self.BETA2*v_w0 + (1-self.BETA2)*np.square(g_w0)
                     w0 = w0 - self.ETA*(m_w0/(1-beta1t))/(np.sqrt(v_w0/(1-beta2t))+self.EPS)
-
                     g_w = e*X[n] + r_w
                     m_w = self.BETA1*m_w + (1-self.BETA1)*g_w
                     v_w = self.BETA2*v_w + (1-self.BETA2)*np.square(g_w)
                     w = w - self.ETA*(m_w/(1-beta1t))/(np.sqrt(v_w/(1-beta2t))+self.EPS)
-
                     g_V = e*(X[n][:,np.newaxis]*np.dot(V.T, X[n]) - V*np.square(X[n][:,np.newaxis])) + r_V
                     m_V = self.BETA1*m_V + (1-self.BETA1)*g_V
                     v_V = self.BETA2*v_V + (1-self.BETA2)*np.square(g_V)
                     V = V - self.ETA*(m_V/(1-beta1t))/(np.sqrt(v_V/(1-beta2t))+self.EPS)
-
-                    #mask = np.where(X[n] != 0)[0]
-
-                    #g_w = e*X[n][mask] + r_w[mask]
-                    #m_w[mask] = self.BETA1*m_w[mask] + (1-self.BETA1)*g_w
-                    #v_w[mask] = self.BETA2*v_w[mask] + (1-self.BETA2)*np.square(g_w)
-                    #w[mask] = w[mask] - self.ETA*(m_w[mask]/(1-beta1t))/(np.sqrt(v_w[mask]/(1-beta2t))+self.EPS)
-
-                    #g_V = e*(X[n][mask][:,np.newaxis]*np.dot(V[mask].T, X[n][mask]) - V[mask]*np.square(X[n][mask][:,np.newaxis])) + r_V[mask]
-                    #m_V[mask] = self.BETA1*m_V[mask] + (1-self.BETA1)*g_V
-                    #v_V[mask] = self.BETA2*v_V[mask] + (1-self.BETA2)*np.square(g_V)
-                    #V[mask] = V[mask] - self.ETA*(m_V[mask]/(1-beta1t))/(np.sqrt(v_V[mask]/(1-beta2t))+self.EPS)
                 self.coef = w0, w, V
                 y_pred = np.array([self._predict(x, w0, w, V) for x in X])
                 error = mean_squared_error(y, y_pred)
@@ -163,36 +147,19 @@ class PropensityFactorizationMachines(FactorizationMachines):
                     if self.VERBOSE and n % int(N / 10) == 0: print('{0}%...'.format(int(100 * n / N)), end='', flush=True)
                     y_pred = self._predict(X[n], w0, w, V)
                     e = 1/p[n] * (y_pred - y[n])
-
                     beta1t = beta1t * self.BETA1
                     beta2t = beta2t * self.BETA2
-
                     g_w0 = e
                     m_w0 = self.BETA1*m_w0 + (1-self.BETA1)*g_w0
                     v_w0 = self.BETA2*v_w0 + (1-self.BETA2)*np.square(g_w0)
                     w0 = w0 - self.ETA*(m_w0/(1-beta1t))/(np.sqrt(v_w0/(1-beta2t))+self.EPS)
-
-                    g_w = e*X[n] + r_w
                     m_w = self.BETA1*m_w + (1-self.BETA1)*g_w
                     v_w = self.BETA2*v_w + (1-self.BETA2)*np.square(g_w)
                     w = w - self.ETA*(m_w/(1-beta1t))/(np.sqrt(v_w/(1-beta2t))+self.EPS)
-
                     g_V = e*(X[n][:,np.newaxis]*np.dot(V.T, X[n]) - V*np.square(X[n][:,np.newaxis])) + r_V
                     m_V = self.BETA1*m_V + (1-self.BETA1)*g_V
                     v_V = self.BETA2*v_V + (1-self.BETA2)*np.square(g_V)
                     V = V - self.ETA*(m_V/(1-beta1t))/(np.sqrt(v_V/(1-beta2t))+self.EPS)
-
-                    #mask = np.where(X[n] != 0)[0]
-
-                    #g_w = e*X[n][mask] + r_w[mask]
-                    #m_w[mask] = self.BETA1*m_w[mask] + (1-self.BETA1)*g_w
-                    #v_w[mask] = self.BETA2*v_w[mask] + (1-self.BETA2)*np.square(g_w)
-                    #w[mask] = w[mask] - self.ETA*(m_w[mask]/(1-beta1t))/(np.sqrt(v_w[mask]/(1-beta2t))+self.EPS)
-
-                    #g_V = e*(X[n][mask][:,np.newaxis]*np.dot(V[mask].T, X[n][mask]) - V[mask]*np.square(X[n][mask][:,np.newaxis])) + r_V[mask]
-                    #m_V[mask] = self.BETA1*m_V[mask] + (1-self.BETA1)*g_V
-                    #v_V[mask] = self.BETA2*v_V[mask] + (1-self.BETA2)*np.square(g_V)
-                    #V[mask] = V[mask] - self.ETA*(m_V[mask]/(1-beta1t))/(np.sqrt(v_V[mask]/(1-beta2t))+self.EPS)
                 self.coef = w0, w, V
                 y_pred = np.array([self._predict(x, w0, w, V) for x in X])
                 error = mean_squared_error(y, y_pred)
@@ -220,7 +187,7 @@ class PropensityFactorizationMachines(FactorizationMachines):
 
 class FactorizationMachinesLogisticRegression(FactorizationMachines, ClassifierMixin):
     def _sigmoid(self, y):
-        return 1/(1+1/np.exp(y))
+        return 1/(1+np.exp(-y))
 
     def _predict(self, x, w0, w, V):
         return w0 + self._sigmoid(np.dot(w, x) + 1/2*np.sum(np.square(np.dot(V.T, x)) - np.dot(np.square(V.T), np.square(x))))
