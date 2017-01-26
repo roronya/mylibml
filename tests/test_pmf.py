@@ -5,7 +5,7 @@ from collections import namedtuple
 from sklearn.metrics import mean_squared_error
 import unittest
 
-class TestMatrixFactorization(unittest.TestCase):
+class TestPropensityMatrixFactorization(unittest.TestCase):
     def test_fit(self):
         path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'resources/coat')
         RAW_TRAIN = pd.read_csv(
@@ -47,9 +47,9 @@ class TestMatrixFactorization(unittest.TestCase):
             )
         )
 
-        MF = mylibml.mf.MatrixFactorization(K=5, LAMBDA=0.1)
-        MF.fit(MF_TRAIN.X.values, MF_TRAIN.y.values)
-        y_pred = MF.predict(MF_TEST.X.values)
+        MF = mylibml.mf.PropensityMatrixFactorization(K=5, LAMBDA=0.1)
+        MF.fit(MF_TRAIN.X.assign(propensity=1).values, MF_TRAIN.y.values)
+        y_pred = MF.predict(MF_TEST.X.assign(propensity=1).values)
         error = mean_squared_error(y_pred, MF_TEST.y.values)
         print(error)
 
