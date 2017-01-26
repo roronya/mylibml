@@ -99,10 +99,13 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
                         break
                 else:
                     saturation_counter = 0
-            print('Finished.', flush=True)
+            print('Finished.', end='', flush=True)
+            print('error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
+                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')), flush=True)
+            self.coef = w0, w, V
+            return self
         except (KeyboardInterrupt, RuntimeError):
-            print('Cancelled.', flush=True)
-        else:
+            print('Cancelled.', end='', flush=True)
             print('error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
                 format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')), flush=True)
             self.coef = w0, w, V
@@ -153,6 +156,8 @@ class PropensityFactorizationMachines(FactorizationMachines):
                     m_w0 = self.BETA1*m_w0 + (1-self.BETA1)*g_w0
                     v_w0 = self.BETA2*v_w0 + (1-self.BETA2)*np.square(g_w0)
                     w0 = w0 - self.ETA*(m_w0/(1-beta1t))/(np.sqrt(v_w0/(1-beta2t))+self.EPS)
+
+                    g_w = e*X[n] + r_w
                     m_w = self.BETA1*m_w + (1-self.BETA1)*g_w
                     v_w = self.BETA2*v_w + (1-self.BETA2)*np.square(g_w)
                     w = w - self.ETA*(m_w/(1-beta1t))/(np.sqrt(v_w/(1-beta2t))+self.EPS)
@@ -175,15 +180,17 @@ class PropensityFactorizationMachines(FactorizationMachines):
                         break
                 else:
                     saturation_counter = 0
-            print('Finished.', flush=True)
-        except (KeyboardInterrupt, RuntimeError):
-            print('Cancelled.', flush=True)
-        else:
+            print('Finished.', end='', flush=True)
             print('error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
                 format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')), flush=True)
             self.coef = w0, w, V
             return self
-
+        except (KeyboardInterrupt, RuntimeError):
+            print('Cancelled.', end='', flush=True)
+            print('error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
+                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')), flush=True)
+            self.coef = w0, w, V
+            return self
 
 class FactorizationMachinesLogisticRegression(FactorizationMachines, ClassifierMixin):
     def _sigmoid(self, y):
