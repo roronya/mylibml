@@ -6,7 +6,7 @@ from collections import namedtuple
 from sklearn.metrics import mean_squared_error
 import unittest
 
-class TestFactorizationMachines(unittest.TestCase):
+class TestPropensityFactorizationMachines(unittest.TestCase):
     def test_fit(self):
         path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'resources/coat')
         FMsDS = namedtuple('FMsDS', ('X', 'y'))
@@ -77,9 +77,9 @@ class TestFactorizationMachines(unittest.TestCase):
             )
         )
 
-        FMs = mylibml.fm.FactorizationMachines(K=5, LAMBDA_w=1, LAMBDA_V=1)
-        FMs.fit(FMs_TRAIN.X.values, FMs_TRAIN.y.values)
-        y_pred = FMs.predict(FMs_TEST.X.values)
+        FMs = mylibml.fm.PropensityFactorizationMachines(K=5, LAMBDA_w=1, LAMBDA_V=1)
+        FMs.fit(FMs_TRAIN.X.assign(propensity=1).values, FMs_TRAIN.y.values)
+        y_pred = FMs.predict(FMs_TEST.X.assign(propensity=1).values)
         error = mean_squared_error(y_pred, FMs_TEST.y.values)
         print(error)
 

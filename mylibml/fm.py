@@ -64,33 +64,45 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
                 old_error = error
                 start = time.time()
                 if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
+                r_w = self.LAMBDA_w/N *w
+                r_V = self.LAMBDA_V/N *V
                 for n in range(N):
                     if self.VERBOSE and n % int(N / 10) == 0: print('{0}%...'.format(int(100 * n / N)), end='', flush=True)
                     y_pred = self._predict(X[n], w0, w, V)
                     e = y_pred - y[n]
+
                     beta1t = beta1t * self.BETA1
                     beta2t = beta2t * self.BETA2
-                    g_w0 = e + self.LAMBDA_w*w0
+
+                    g_w0 = e
                     m_w0 = self.BETA1*m_w0 + (1-self.BETA1)*g_w0
                     v_w0 = self.BETA2*v_w0 + (1-self.BETA2)*np.square(g_w0)
-                    mhatt_w0 = m_w0/(1-beta1t)
-                    vhatt_w0 = v_w0/(1-beta2t)
-                    w0 = w0 - self.ETA*mhatt_w0/(np.sqrt(vhatt_w0)+self.EPS)
-                    g_w = e*X[n] + self.LAMBDA_w*w
+                    w0 = w0 - self.ETA*(m_w0/(1-beta1t))/(np.sqrt(v_w0/(1-beta2t))+self.EPS)
+
+                    g_w = e*X[n] + r_w
                     m_w = self.BETA1*m_w + (1-self.BETA1)*g_w
                     v_w = self.BETA2*v_w + (1-self.BETA2)*np.square(g_w)
-                    mhatt_w = m_w/(1-beta1t)
-                    vhatt_w = v_w/(1-beta2t)
-                    w = w - self.ETA*mhatt_w/(np.sqrt(vhatt_w)+self.EPS)
-                    mask = np.where(X[n] != 0)[0]
-                    g_V = e*(X[n][mask][:,np.newaxis]*np.dot(V[mask].T, X[n][mask]) - V[mask]*np.square(X[n][mask][:,np.newaxis])) + self.LAMBDA_V*V[mask]
-                    m_V[mask] = self.BETA1*m_V[mask] + (1-self.BETA1)*g_V
-                    v_V[mask] = self.BETA2*v_V[mask] + (1-self.BETA2)*np.square(g_V)
-                    mhatt_V = m_V[mask]/(1-beta1t)
-                    vhatt_V = v_V[mask]/(1-beta2t)
-                    V[mask] = V[mask] - self.ETA*mhatt_V/(np.sqrt(vhatt_V)+self.EPS)
+                    w = w - self.ETA*(m_w/(1-beta1t))/(np.sqrt(v_w/(1-beta2t))+self.EPS)
+
+                    g_V = e*(X[n][:,np.newaxis]*np.dot(V.T, X[n]) - V*np.square(X[n][:,np.newaxis])) + r_V
+                    m_V = self.BETA1*m_V + (1-self.BETA1)*g_V
+                    v_V = self.BETA2*v_V + (1-self.BETA2)*np.square(g_V)
+                    V = V - self.ETA*(m_V/(1-beta1t))/(np.sqrt(v_V/(1-beta2t))+self.EPS)
+
+                    #mask = np.where(X[n] != 0)[0]
+
+                    #g_w = e*X[n][mask] + r_w[mask]
+                    #m_w[mask] = self.BETA1*m_w[mask] + (1-self.BETA1)*g_w
+                    #v_w[mask] = self.BETA2*v_w[mask] + (1-self.BETA2)*np.square(g_w)
+                    #w[mask] = w[mask] - self.ETA*(m_w[mask]/(1-beta1t))/(np.sqrt(v_w[mask]/(1-beta2t))+self.EPS)
+
+                    #g_V = e*(X[n][mask][:,np.newaxis]*np.dot(V[mask].T, X[n][mask]) - V[mask]*np.square(X[n][mask][:,np.newaxis])) + r_V[mask]
+                    #m_V[mask] = self.BETA1*m_V[mask] + (1-self.BETA1)*g_V
+                    #v_V[mask] = self.BETA2*v_V[mask] + (1-self.BETA2)*np.square(g_V)
+                    #V[mask] = V[mask] - self.ETA*(m_V[mask]/(1-beta1t))/(np.sqrt(v_V[mask]/(1-beta2t))+self.EPS)
                 self.coef = w0, w, V
-                error = mean_squared_error(y, self.predict(X))
+                y_pred = np.array([self._predict(x, w0, w, V) for x in X])
+                error = mean_squared_error(y, y_pred)
                 if self.VERBOSE:
                     print('100% error=> {0} [{1}(sec/it)]'.format(
                         format(error, '.5f'),
@@ -103,12 +115,12 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
                         break
                 else:
                     saturation_counter = 0
-            print('Finished. error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
-                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')), flush=True)
-            self.coef = w0, w, V
-            return self
+            print('Finished.', flush=True)
         except (KeyboardInterrupt, RuntimeError):
-            print('Canceled', flush=True)
+            print('Cancelled.', flush=True)
+        else:
+            print('error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
+                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')), flush=True)
             self.coef = w0, w, V
             return self
 
@@ -130,7 +142,7 @@ class PropensityFactorizationMachines(FactorizationMachines):
         w0 = np.random.rand()
         w = np.random.rand(D)
         V = np.random.rand(D, self.K)
-        self.coef = w, V
+        self.coef = w0, w, V
         m_w0 = 0
         v_w0 = 0
         m_w = np.zeros(D)
@@ -144,31 +156,43 @@ class PropensityFactorizationMachines(FactorizationMachines):
                 old_error = error
                 start = time.time()
                 if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
+                ips_mean = (1/p).mean()
+                r_w = self.LAMBDA_w*ips_mean/N*w
+                r_V = self.LAMBDA_V*ips_mean/N*V
                 for n in range(N):
                     if self.VERBOSE and n % int(N / 10) == 0: print('{0}%...'.format(int(100 * n / N)), end='', flush=True)
                     y_pred = self._predict(X[n], w0, w, V)
-                    e = y_pred - y[n]
+                    e = 1/p[n] * (y_pred - y[n])
+
                     beta1t = beta1t * self.BETA1
                     beta2t = beta2t * self.BETA2
-                    g_w0 = 1/p[n]*(e + self.LAMBDA_w*w0)
+
+                    g_w0 = e
                     m_w0 = self.BETA1*m_w0 + (1-self.BETA1)*g_w0
                     v_w0 = self.BETA2*v_w0 + (1-self.BETA2)*np.square(g_w0)
-                    mhatt_w0 = m_w0/(1-beta1t)
-                    vhatt_w0 = v_w0/(1-beta2t)
-                    w0 = w0 - self.ETA*mhatt_w0/(np.sqrt(vhatt_w0)+self.EPS)
-                    g_w = 1/p[n]*(e*X[n] + self.LAMBDA_w*w)
+                    w0 = w0 - self.ETA*(m_w0/(1-beta1t))/(np.sqrt(v_w0/(1-beta2t))+self.EPS)
+
+                    g_w = e*X[n] + r_w
                     m_w = self.BETA1*m_w + (1-self.BETA1)*g_w
                     v_w = self.BETA2*v_w + (1-self.BETA2)*np.square(g_w)
-                    mhatt_w = m_w/(1-beta1t)
-                    vhatt_w = v_w/(1-beta2t)
-                    w = w - self.ETA*mhatt_w/(np.sqrt(vhatt_w)+self.EPS)
-                    mask = np.where(X[n] != 0)[0]
-                    g_V = 1/p[n]*(e*(X[n][mask][:,np.newaxis]*np.dot(V[mask].T, X[n][mask]) - V[mask]*np.square(X[n][mask][:,np.newaxis])) + self.LAMBDA_V*V[mask])
-                    m_V[mask] = self.BETA1*m_V[mask] + (1-self.BETA1)*g_V
-                    v_V[mask] = self.BETA2*v_V[mask] + (1-self.BETA2)*np.square(g_V)
-                    mhatt_V = m_V[mask]/(1-beta1t)
-                    vhatt_V = v_V[mask]/(1-beta2t)
-                    V[mask] = V[mask] - self.ETA*mhatt_V/(np.sqrt(vhatt_V)+self.EPS)
+                    w = w - self.ETA*(m_w/(1-beta1t))/(np.sqrt(v_w/(1-beta2t))+self.EPS)
+
+                    g_V = e*(X[n][:,np.newaxis]*np.dot(V.T, X[n]) - V*np.square(X[n][:,np.newaxis])) + r_V
+                    m_V = self.BETA1*m_V + (1-self.BETA1)*g_V
+                    v_V = self.BETA2*v_V + (1-self.BETA2)*np.square(g_V)
+                    V = V - self.ETA*(m_V/(1-beta1t))/(np.sqrt(v_V/(1-beta2t))+self.EPS)
+
+                    #mask = np.where(X[n] != 0)[0]
+
+                    #g_w = e*X[n][mask] + r_w[mask]
+                    #m_w[mask] = self.BETA1*m_w[mask] + (1-self.BETA1)*g_w
+                    #v_w[mask] = self.BETA2*v_w[mask] + (1-self.BETA2)*np.square(g_w)
+                    #w[mask] = w[mask] - self.ETA*(m_w[mask]/(1-beta1t))/(np.sqrt(v_w[mask]/(1-beta2t))+self.EPS)
+
+                    #g_V = e*(X[n][mask][:,np.newaxis]*np.dot(V[mask].T, X[n][mask]) - V[mask]*np.square(X[n][mask][:,np.newaxis])) + r_V[mask]
+                    #m_V[mask] = self.BETA1*m_V[mask] + (1-self.BETA1)*g_V
+                    #v_V[mask] = self.BETA2*v_V[mask] + (1-self.BETA2)*np.square(g_V)
+                    #V[mask] = V[mask] - self.ETA*(m_V[mask]/(1-beta1t))/(np.sqrt(v_V[mask]/(1-beta2t))+self.EPS)
                 self.coef = w0, w, V
                 y_pred = np.array([self._predict(x, w0, w, V) for x in X])
                 error = mean_squared_error(y, y_pred)
@@ -184,14 +208,15 @@ class PropensityFactorizationMachines(FactorizationMachines):
                         break
                 else:
                     saturation_counter = 0
-            print('Finished. error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
+            print('Finished.', flush=True)
+        except (KeyboardInterrupt, RuntimeError):
+            print('Cancelled.', flush=True)
+        else:
+            print('error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
                 format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')), flush=True)
             self.coef = w0, w, V
             return self
-        except (KeyboardInterrupt, RuntimeError):
-            print('Canceled', flush=True)
-            self.coef = w0, w, V
-            return self
+
 
 class FactorizationMachinesLogisticRegression(FactorizationMachines, ClassifierMixin):
     def _sigmoid(self, y):
