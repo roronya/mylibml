@@ -197,4 +197,4 @@ class FactorizationMachinesLogisticRegression(FactorizationMachines, ClassifierM
         return 1/(1+np.exp(-y))
 
     def _predict(self, x, w0, w, V):
-        return w0 + self._sigmoid(np.dot(w, x) + 1/2*np.sum(np.square(np.dot(V.T, x)) - np.dot(np.square(V.T), np.square(x))))
+        return self._sigmoid(w0 + np.dot(w, x) + 1/2*np.sum(np.square(np.dot(V.T, x)) - np.dot(np.square(V.T), np.square(x))))

@@ -102,6 +102,7 @@ class TestFactorizationMachines(unittest.TestCase):
         FMsLR.fit(LR_PROPENSITY_TRAIN.X.values, LR_PROPENSITY_TRAIN.y.values)
         y_pred = FMsLR.predict(LR_PROPENSITY_TEST.X.values)
         error = mean_squared_error(y_pred, LR_PROPENSITY_TEST.y.values)
+        print(y_pred)
         print(error)
 
 if __name__ == '__main__':
