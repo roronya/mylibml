@@ -64,6 +64,7 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
                 old_error = error
                 start = time.time()
                 if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
+                r_w0 = self.LAMBDA_w/N * w0
                 r_w = self.LAMBDA_w/N *w
                 r_V = self.LAMBDA_V/N *V
                 for n in range(N):
@@ -72,7 +73,7 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
                     e = y_pred - y[n]
                     beta1t = beta1t * self.BETA1
                     beta2t = beta2t * self.BETA2
-                    g_w0 = e
+                    g_w0 = e + r_w0
                     m_w0 = self.BETA1*m_w0 + (1-self.BETA1)*g_w0
                     v_w0 = self.BETA2*v_w0 + (1-self.BETA2)*np.square(g_w0)
                     w0 = w0 - self.ETA*(m_w0/(1-beta1t))/(np.sqrt(v_w0/(1-beta2t))+self.EPS)
@@ -144,6 +145,7 @@ class PropensityFactorizationMachines(FactorizationMachines):
                 start = time.time()
                 if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
                 ips_mean = (1/p).mean()
+                r_w0 = self.LAMBDA_w*ips_mean/N*w
                 r_w = self.LAMBDA_w*ips_mean/N*w
                 r_V = self.LAMBDA_V*ips_mean/N*V
                 for n in range(N):
@@ -152,7 +154,7 @@ class PropensityFactorizationMachines(FactorizationMachines):
                     e = 1/p[n] * (y_pred - y[n])
                     beta1t = beta1t * self.BETA1
                     beta2t = beta2t * self.BETA2
-                    g_w0 = e
+                    g_w0 = e + r_w0
                     m_w0 = self.BETA1*m_w0 + (1-self.BETA1)*g_w0
                     v_w0 = self.BETA2*v_w0 + (1-self.BETA2)*np.square(g_w0)
                     w0 = w0 - self.ETA*(m_w0/(1-beta1t))/(np.sqrt(v_w0/(1-beta2t))+self.EPS)
