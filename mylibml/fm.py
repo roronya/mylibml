@@ -67,7 +67,7 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
                 r_w0 = self.LAMBDA_w/N * w0
                 r_w = self.LAMBDA_w/N *w
                 r_V = self.LAMBDA_V/N *V
-                for n in range(N):
+                for n in np.random.permutation(range(N)):
                     if self.VERBOSE and n % int(N / 10) == 0: print('{0}%...'.format(int(100 * n / N)), end='', flush=True)
                     y_pred = self._predict(X[n], w0, w, V)
                     e = y_pred - y[n]
@@ -149,7 +149,7 @@ class PropensityFactorizationMachines(FactorizationMachines):
                 r_w0 = self.LAMBDA_w*ips_mean/N*w0
                 r_w = self.LAMBDA_w*ips_mean/N*w
                 r_V = self.LAMBDA_V*ips_mean/N*V
-                for n in range(N):
+                for n in np.random.permutation(range(N)):
                     if self.VERBOSE and n % int(N / 10) == 0: print('{0}%...'.format(int(100 * n / N)), end='', flush=True)
                     y_pred = self._predict(X[n], w0, w, V)
                     e = 1/p[n] * (y_pred - y[n])
@@ -262,7 +262,7 @@ class FactorizationMachinesLogisticRegression(BaseEstimator, ClassifierMixin):
                 r_w0 = self.LAMBDA_w/N * w0
                 r_w = self.LAMBDA_w/N *w
                 r_V = self.LAMBDA_V/N *V
-                for n in range(N):
+                for n in np.random.permutation(range(N)):
                     if self.VERBOSE and n % int(N / 10) == 0: print('{0}%...'.format(int(100 * n / N)), end='', flush=True)
                     y_pred = self._predict(X[n], w0, w, V)
                     e = (y_pred - y[n]) * y_pred * (1-y_pred)

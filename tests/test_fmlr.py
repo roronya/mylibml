@@ -6,7 +6,7 @@ from collections import namedtuple
 from sklearn.metrics import mean_squared_error
 import unittest
 
-class TestFactorizationMachines(unittest.TestCase):
+class TestFactorizationMachinesLogisticRegression(unittest.TestCase):
     def test_fit(self):
         path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'resources/coat')
         FMsDS = namedtuple('FMsDS', ('X', 'y'))
