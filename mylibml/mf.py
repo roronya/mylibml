@@ -66,8 +66,8 @@ class MatrixFactorization(BaseEstimator, RegressorMixin):
                 start = time.time()
                 if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
                 r_V = self.LAMBDA/N * V
-                for n in np.random.permutation(range(N)):
-                    if self.VERBOSE and n % int(N / 10) == 0: print('{0}%...'.format(int(100 * n / N)), end='', flush=True)
+                for it, n in enumerate(np.random.permutation(range(N))):
+                    if self.VERBOSE and it % int(N / 10) == 0: print('{0}%...'.format(int(100 * it / N)), end='', flush=True)
                     beta1t = beta1t*self.BETA1
                     beta2t = beta2t*self.BETA2
 
@@ -161,8 +161,8 @@ class PropensityMatrixFactorization(MatrixFactorization):
                 start = time.time()
                 if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
                 r_V = self.LAMBDA*(1/p).mean()/N*V
-                for n in np.random.permutation(range(N)):
-                    if self.VERBOSE and n % int(N / 10) == 0: print('{0}%...'.format(int(100 * n / N)), end='', flush=True)
+                for it, n in enumerate(np.random.permutation(range(N))):
+                    if self.VERBOSE and it % int(N / 10) == 0: print('{0}%...'.format(int(100 * it / N)), end='', flush=True)
                     beta1t = beta1t*self.BETA1
                     beta2t = beta2t*self.BETA2
 
