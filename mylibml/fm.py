@@ -145,7 +145,7 @@ class PropensityFactorizationMachines(FactorizationMachines):
                 start = time.time()
                 if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
                 ips_mean = (1/p).mean()
-                r_w0 = self.LAMBDA_w*ips_mean/N*w
+                r_w0 = self.LAMBDA_w*ips_mean/N*w0
                 r_w = self.LAMBDA_w*ips_mean/N*w
                 r_V = self.LAMBDA_V*ips_mean/N*V
                 for n in range(N):
