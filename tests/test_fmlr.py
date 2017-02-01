@@ -82,7 +82,7 @@ class TestFactorizationMachines(unittest.TestCase):
             lambda df: pd.merge(df, USER, on='user_id')
         ).pipe(
             lambda df: pd.merge(df, ITEM, on='item_id')
-        ).drop(['user_id', 'item_id'], axis=1)[positive.columns]
+        ).drop(['user_id', 'item_id'], axis=1)[positive.columns].sample(n=positive.shape[0])
 
         LR_PROPENSITY_TRAIN = pd.concat([positive, negative], ignore_index=True).pipe(
             lambda df: LRPropensityDS(
