@@ -125,6 +125,7 @@ class PropensityFactorizationMachines(FactorizationMachines):
         saturation_counter = 0
         p = X[:, -1]
         assert((0 <= p).all() and (p <= 1).all()) # p は確率
+        p = p + 1e-06
         X = X[:, :-1]
         N, D = X.shape
         w0 = np.random.rand()
