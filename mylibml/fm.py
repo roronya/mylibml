@@ -229,6 +229,10 @@ class FactorizationMachinesLogisticRegression(BaseEstimator, ClassifierMixin):
 
     def predict(self, X):
         w0, w, V = self.coef
+        return np.array([np.round(self._predict(x, w0, w, V)) for x in X])
+
+    def predict_proba(self, X):
+        w0, w, V = self.coef
         return np.array([self._predict(x, w0, w, V) for x in X])
 
     def _predict(self, x, w0, w, V):
