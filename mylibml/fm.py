@@ -5,12 +5,11 @@ from sklearn.metrics import mean_squared_error
 
 class FactorizationMachines(BaseEstimator, RegressorMixin):
     def __init__(
-            self, K=40, LAMBDA_w=0.001, LAMBDA_V=0.001,
+            self, K=40, λ=0.001,
             ETA=0.001, BETA1=0.9, BETA2=0.999, EPS=10e-8,
             THRESHOLD=0.99, LOOP=50, VERBOSE=True):
         self.K = K
-        self.LAMBDA_w = LAMBDA_w
-        self.LAMBDA_V = LAMBDA_V
+        self.λ = λ
         self.ETA = ETA
         self.BETA1 = BETA1
         self.BETA2 = BETA2
@@ -23,8 +22,7 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
     def get_params(self, deep=True):
         return {
             'K': self.K,
-            'LAMBDA_w': self.LAMBDA_w,
-            'LAMBDA_V': self.LAMBDA_V
+            'λ': self.λ
         }
 
     def set_params(self, **parameters):
@@ -64,9 +62,9 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
                 old_error = error
                 start = time.time()
                 if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
-                r_w0 = self.LAMBDA_w/N * w0
-                r_w = self.LAMBDA_w/N *w
-                r_V = self.LAMBDA_V/N *V
+                r_w0 = self.λ/N * w0
+                r_w = self.λ/N * w
+                r_V = self.λ/N * V
                 for it, n in enumerate(np.random.permutation(range(N))):
                     if self.VERBOSE and it % int(N / 10) == 0: print('{0}%...'.format(int(100 * it / N)), end='', flush=True)
                     y_pred = self._predict(X[n], w0, w, V)
@@ -101,14 +99,14 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
                 else:
                     saturation_counter = 0
             print('Finished.', end='', flush=True)
-            print('error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
-                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')), flush=True)
+            print('error => {0} [K={1}, λ={2}, {3}(sec)] '.format(
+                format(error, '.5f'), self.K, self.λ, format(time.time() - fit_start, '.2f')), flush=True)
             self.coef = w0, w, V
             return self
         except (KeyboardInterrupt, RuntimeError):
             print('Cancelled.', end='', flush=True)
-            print('error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
-                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')), flush=True)
+            print('error => {0} [K={1}, λ={2}, {3}(sec)] '.format(
+                format(error, '.5f'), self.K, self.λ, format(time.time() - fit_start, '.2f')), flush=True)
             self.coef = w0, w, V
             return self
 
@@ -146,9 +144,9 @@ class PropensityFactorizationMachines(FactorizationMachines):
                 start = time.time()
                 if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
                 ips_mean = (1/p).mean()
-                r_w0 = self.LAMBDA_w*ips_mean/N*w0
-                r_w = self.LAMBDA_w*ips_mean/N*w
-                r_V = self.LAMBDA_V*ips_mean/N*V
+                r_w0 = self.λ*ips_mean/N*w0
+                r_w = self.λ*ips_mean/N*w
+                r_V = self.λ*ips_mean/N*V
                 for it, n in enumerate(np.random.permutation(range(N))):
                     if self.VERBOSE and it % int(N / 10) == 0: print('{0}%...'.format(int(100 * it / N)), end='', flush=True)
                     y_pred = self._predict(X[n], w0, w, V)
@@ -184,25 +182,24 @@ class PropensityFactorizationMachines(FactorizationMachines):
                 else:
                     saturation_counter = 0
             print('Finished.', end='', flush=True)
-            print('error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
-                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')), flush=True)
+            print('error => {0} [K={1}, λ={2} {3}(sec)] '.format(
+                format(error, '.5f'), self.K, self.λ, format(time.time() - fit_start, '.2f')), flush=True)
             self.coef = w0, w, V
             return self
         except (KeyboardInterrupt, RuntimeError):
             print('Cancelled.', end='', flush=True)
-            print('error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
-                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')), flush=True)
+            print('error => {0} [K={1}, λ={2} {3}(sec)] '.format(
+                format(error, '.5f'), self.K, self.λ, format(time.time() - fit_start, '.2f')), flush=True)
             self.coef = w0, w, V
             return self
 
 class FactorizationMachinesLogisticRegression(BaseEstimator, ClassifierMixin):
     def __init__(
-            self, K=40, LAMBDA_w=0.001, LAMBDA_V=0.001,
+            self, K=40, λ=0.001,
             ETA=0.001, BETA1=0.9, BETA2=0.999, EPS=10e-8,
             THRESHOLD=0.99, LOOP=50, VERBOSE=True):
         self.K = K
-        self.LAMBDA_w = LAMBDA_w
-        self.LAMBDA_V = LAMBDA_V
+        self.λ = λ
         self.ETA = ETA
         self.BETA1 = BETA1
         self.BETA2 = BETA2
@@ -215,8 +212,7 @@ class FactorizationMachinesLogisticRegression(BaseEstimator, ClassifierMixin):
     def get_params(self, deep=True):
         return {
             'K': self.K,
-            'LAMBDA_w': self.LAMBDA_w,
-            'LAMBDA_V': self.LAMBDA_V
+            'λ': self.λ
         }
 
     def set_params(self, **parameters):
@@ -263,9 +259,9 @@ class FactorizationMachinesLogisticRegression(BaseEstimator, ClassifierMixin):
                 old_error = error
                 start = time.time()
                 if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
-                r_w0 = self.LAMBDA_w/N * w0
-                r_w = self.LAMBDA_w/N *w
-                r_V = self.LAMBDA_V/N *V
+                r_w0 = self.λ/N * w0
+                r_w = self.λ/N *w
+                r_V = self.λ/N *V
                 for it, n in enumerate(np.random.permutation(range(N))):
                     if self.VERBOSE and it % int(N / 10) == 0: print('{0}%...'.format(int(100 * it / N)), end='', flush=True)
                     y_pred = self._predict(X[n], w0, w, V)
@@ -300,13 +296,13 @@ class FactorizationMachinesLogisticRegression(BaseEstimator, ClassifierMixin):
                 else:
                     saturation_counter = 0
             print('Finished.', end='', flush=True)
-            print('error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
-                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')), flush=True)
+            print('error => {0} [K={1}, λ={2} {3}(sec)] '.format(
+                format(error, '.5f'), self.K, self.λ, format(time.time() - fit_start, '.2f')), flush=True)
             self.coef = w0, w, V
             return self
         except (KeyboardInterrupt, RuntimeError):
             print('Cancelled.', end='', flush=True)
-            print('error => {0} [K={1}, LAMBDA_w={2}, LAMBDA_V={3} {4}(sec)] '.format(
-                format(error, '.5f'), self.K, self.LAMBDA_w, self.LAMBDA_V, format(time.time() - fit_start, '.2f')), flush=True)
+            print('error => {0} [K={1}, λ={2} {3}(sec)] '.format(
+                format(error, '.5f'), self.K, self.λ, format(time.time() - fit_start, '.2f')), flush=True)
             self.coef = w0, w, V
             return self

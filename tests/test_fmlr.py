@@ -98,7 +98,7 @@ class TestFactorizationMachinesLogisticRegression(unittest.TestCase):
             )
         )
 
-        FMsLR = mylibml.fm.FactorizationMachinesLogisticRegression(K=5, LAMBDA_w=1, LAMBDA_V=1)
+        FMsLR = mylibml.fm.FactorizationMachinesLogisticRegression(K=5, λ=1)
         FMsLR.fit(LR_PROPENSITY_TRAIN.X.values, LR_PROPENSITY_TRAIN.y.values)
         y_pred = FMsLR.predict(LR_PROPENSITY_TEST.X.values)
         error = mean_squared_error(y_pred, LR_PROPENSITY_TEST.y.values)
