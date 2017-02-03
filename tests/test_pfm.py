@@ -77,11 +77,12 @@ class TestPropensityFactorizationMachines(unittest.TestCase):
             )
         )
 
-        FMs = mylibml.fm.PropensityFactorizationMachines(K=5, λ=1)
+        FMs = mylibml.fm.PropensityFactorizationMachines(K=5, λ=1, LOOP=1)
         FMs.fit(FMs_TRAIN.X.assign(propensity=1).values, FMs_TRAIN.y.values)
         y_pred = FMs.predict(FMs_TEST.X.assign(propensity=1).values)
         error = mean_squared_error(y_pred, FMs_TEST.y.values)
         print(error)
+        print(FMs.score(FMs_TEST.X.assign(propensity=1).values, FMs_TEST.y.values))
 
 if __name__ == '__main__':
     unittest.main()
