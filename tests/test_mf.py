@@ -47,11 +47,12 @@ class TestMatrixFactorization(unittest.TestCase):
             )
         )
 
-        MF = mylibml.mf.MatrixFactorization(K=5, LAMBDA=0.1)
+        MF = mylibml.mf.MatrixFactorization(K=5, LAMBDA=0.1, LOOP=1)
         MF.fit(MF_TRAIN.X.values, MF_TRAIN.y.values)
         y_pred = MF.predict(MF_TEST.X.values)
         error = mean_squared_error(y_pred, MF_TEST.y.values)
         print(error)
+        print(MF.score(MF_TEST.X.values, MF_TEST.y.values))
 
 
 if __name__ == '__main__':

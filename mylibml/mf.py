@@ -2,6 +2,7 @@ import numpy as np
 import time
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.metrics import mean_squared_error
+from mylibml.metrics import propensity_scored_mse
 
 class MatrixFactorization(BaseEstimator, RegressorMixin):
     def __init__(
@@ -28,6 +29,10 @@ class MatrixFactorization(BaseEstimator, RegressorMixin):
         for parameter, value in parameters.items():
             setattr(self, parameter, value)
         return self
+
+    def score(self, X, y, sample_weight=None):
+        y_pred = self.predict(X)
+        return 1/mean_squared_error(y_pred, y)
 
     def predict(self, X):
         N, D = X.shape
@@ -125,6 +130,12 @@ class MatrixFactorization(BaseEstimator, RegressorMixin):
             return self
 
 class PropensityMatrixFactorization(MatrixFactorization):
+    def score(self, X, y, sample_weight=None):
+        p = X[:, -1]
+        assert((0 <= p).all() and (p <= 1).all()) # p は確率
+        y_pred = self.predict(X)
+        return 1/propensity_scored_mse(y, y_pred, p)
+
     def predict(self, X):
         p = X[:, -1]
         assert((0 <= p).all() and (p <= 1).all()) # p は確率

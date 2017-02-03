@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.metrics import mean_squared_error
 
 def dcg(true, pred, K=None):
     pred_arg_sorted = pred.argsort()[::-1]
@@ -9,3 +10,6 @@ def dcg(true, pred, K=None):
 
 def ndcg(true, pred, K=None):
     return dcg(true, pred, K=K)/dcg(true, true, K=K)
+
+def propensity_scored_mse(y_true, y_pred, propensity_score):
+    return np.average(1/propensity_score * (y_true - y_pred)**2)
