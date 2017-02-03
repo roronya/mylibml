@@ -149,8 +149,7 @@ class PropensityMatrixFactorization(MatrixFactorization):
         fit_start = time.time()
         saturation_counter = 0
         p = X[:, -1]
-        assert((0 <= p).all() and (p <= 1).all()) # p は確率
-        p = p + 1e-06
+        assert((0 < p).all() and (p <= 1).all()) # p は確率で必ず0以上
         X = X[:, :-1]
         N, D = X.shape
         assert((X.sum(axis=1) == np.array([2]*N)).all()) # X は全ての行で2つだけ1が立つ
