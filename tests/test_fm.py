@@ -77,7 +77,7 @@ class TestFactorizationMachines(unittest.TestCase):
             )
         )
 
-        FMs = mylibml.fm.FactorizationMachines(K=5, λ=1, LOOP=5)
+        FMs = mylibml.fm.FactorizationMachines(K=5, λ=1, LOOP=10)
         FMs.fit(FMs_TRAIN.X.values, FMs_TRAIN.y.values)
         y_pred = FMs.predict(FMs_TEST.X.values)
         error = mean_squared_error(y_pred, FMs_TEST.y.values)

@@ -40,7 +40,8 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
         return np.array([self._predict(x, w0, w, V) for x in X])
 
     def _predict(self, x, w0, w, V):
-        prediction = w0 + np.dot(w, x) + 1/2*np.sum(np.square(np.dot(V.T, x)) - np.dot(np.square(V.T), np.square(x)))
+        mask = np.where(x != 0)[0]
+        prediction = w0 + np.dot(w[mask], x[mask]) + 1/2*np.sum(np.square(np.dot(V[mask].T, x[mask])) - np.dot(np.square(V[mask].T), np.square(x[mask])))
         if np.isnan(prediction):
             if self.VERBOSE: print('prediction is nan', flush=True)
             raise RuntimeError()
@@ -243,7 +244,8 @@ class FactorizationMachinesLogisticRegression(BaseEstimator, ClassifierMixin):
         return np.array([self._predict(x, w0, w, V) for x in X])
 
     def _predict(self, x, w0, w, V):
-        prediction = self._sigmoid(w0 + np.dot(w, x) + 1/2*np.sum(np.square(np.dot(V.T, x)) - np.dot(np.square(V.T), np.square(x))))
+        mask = np.where(x != 0)[0]
+        prediction = w0 + np.dot(w[mask], x[mask]) + 1/2*np.sum(np.square(np.dot(V[mask].T, x[mask])) - np.dot(np.square(V[mask].T), np.square(x[mask])))
         if np.isnan(prediction):
             if self.VERBOSE: print('prediction is nan', flush=True)
             raise RuntimeError()
