@@ -6,10 +6,10 @@ from mylibml.metrics import propensity_scored_mse
 
 class MatrixFactorization(BaseEstimator, RegressorMixin):
     def __init__(
-            self, K=40, LAMBDA=0.001, ETA=0.001, BETA1=0.9, BETA2=0.999, EPS=10e-8,
+            self, K=40, λ=0.001, ETA=0.001, BETA1=0.9, BETA2=0.999, EPS=10e-8,
             THRESHOLD=0.99, LOOP=50, VERBOSE=True):
         self.K = K
-        self.LAMBDA = LAMBDA
+        self.λ = λ
         self.ETA = ETA
         self.BETA1 = BETA1
         self.BETA2 = BETA2
@@ -22,7 +22,7 @@ class MatrixFactorization(BaseEstimator, RegressorMixin):
     def get_params(self, deep=True):
         return {
             'K': self.K,
-            'LAMBDA': self.LAMBDA
+            'λ': self.λ
         }
 
     def set_params(self, **parameters):
@@ -53,9 +53,9 @@ class MatrixFactorization(BaseEstimator, RegressorMixin):
         saturation_counter = 0
         N, D = X.shape
         assert((X.sum(axis=1) == np.array([2]*N)).all()) # X は全ての行で2つだけ1が立つ
-        w0 = np.random.rand()
-        w = np.random.rand(D)
-        V = np.random.rand(D, self.K)
+        w0 = 0
+        w = np.zeros(D)
+        V = np.random.normal(0, self.λ, (D, self.K))
         self.coef = w0, w, V
         m_w0 = 0
         v_w0 = 0
@@ -70,7 +70,7 @@ class MatrixFactorization(BaseEstimator, RegressorMixin):
                 old_error = error
                 start = time.time()
                 if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
-                r_V = self.LAMBDA/N * V
+                r_V = self.λ/N * V
                 for it, n in enumerate(np.random.permutation(range(N))):
                     if self.VERBOSE and it % int(N / 10) == 0: print('{0}%...'.format(int(100 * it / N)), end='', flush=True)
                     beta1t = beta1t*self.BETA1
@@ -120,8 +120,8 @@ class MatrixFactorization(BaseEstimator, RegressorMixin):
                         break
                 else:
                     saturation_counter = 0
-            print('Finished. error => {0} [K={1}, LAMBDA={2}, {3}(sec)] '.format(
-                format(error, '.5f'), self.K, self.LAMBDA, format(time.time() - fit_start, '.2f')), flush=True)
+            print('Finished. error => {0} [K={1}, λ={2}, {3}(sec)] '.format(
+                format(error, '.5f'), self.K, self.λ, format(time.time() - fit_start, '.2f')), flush=True)
             self.coef = w0, w, V
             return self
         except (KeyboardInterrupt, RuntimeError):
@@ -153,9 +153,9 @@ class PropensityMatrixFactorization(MatrixFactorization):
         X = X[:, :-1]
         N, D = X.shape
         assert((X.sum(axis=1) == np.array([2]*N)).all()) # X は全ての行で2つだけ1が立つ
-        w0 = np.random.rand()
-        w = np.random.rand(D)
-        V = np.random.rand(D, self.K)
+        w0 = 0
+        w = np.zeros(D)
+        V = np.random.normal(0, self.λ, (D, self.K))
         self.coef = w0, w, V
         m_w0 = 0
         v_w0 = 0
@@ -170,7 +170,7 @@ class PropensityMatrixFactorization(MatrixFactorization):
                 old_error = error
                 start = time.time()
                 if self.VERBOSE: print('LOOP{0}: '.format(loop_index), end='', flush=True)
-                r_V = self.LAMBDA*(1/p).mean()/N*V
+                r_V = self.λ*(1/p).mean()/N*V
                 for it, n in enumerate(np.random.permutation(range(N))):
                     if self.VERBOSE and it % int(N / 10) == 0: print('{0}%...'.format(int(100 * it / N)), end='', flush=True)
                     beta1t = beta1t*self.BETA1
@@ -220,8 +220,8 @@ class PropensityMatrixFactorization(MatrixFactorization):
                         break
                 else:
                     saturation_counter = 0
-            print('Finished. error => {0} [K={1}, LAMBDA={2}, {3}(sec)] '.format(
-                format(error, '.5f'), self.K, self.LAMBDA, format(time.time() - fit_start, '.2f')), flush=True)
+            print('Finished. error => {0} [K={1}, λ={2}, {3}(sec)] '.format(
+                format(error, '.5f'), self.K, self.λ, format(time.time() - fit_start, '.2f')), flush=True)
             self.coef = w0, w, V
             return self
         except (KeyboardInterrupt, RuntimeError):
