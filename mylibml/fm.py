@@ -53,7 +53,7 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
         N, D = X.shape
         w0 = 0
         w = np.zeros(D)
-        V = np.zeros((D, self.K))
+        V = np.random.normal(0, self.λ, (D, self.K))
         self.coef = w0, w, V
         m_w0 = 0
         v_w0 = 0
@@ -140,7 +140,7 @@ class PropensityFactorizationMachines(FactorizationMachines):
         N, D = X.shape
         w0 = 0
         w = np.zeros(D)
-        V = np.zeros((D, self.K))
+        V = np.random.normal(0, self.λ, (D, self.K))
         self.coef = w0, w, V
         m_w0 = 0
         v_w0 = 0
@@ -257,7 +257,7 @@ class FactorizationMachinesLogisticRegression(BaseEstimator, ClassifierMixin):
         N, D = X.shape
         w0 = 0
         w = np.zeros(D)
-        V = np.zeros((D, self.K))
+        V = np.random.normal(0, self.λ, (D, self.K))
         self.coef = w0, w, V
         m_w0 = 0
         v_w0 = 0
