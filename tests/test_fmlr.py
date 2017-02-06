@@ -100,10 +100,11 @@ class TestFactorizationMachinesLogisticRegression(unittest.TestCase):
 
         FMsLR = mylibml.fm.FactorizationMachinesLogisticRegression(K=5, λ=1, LOOP=5)
         FMsLR.fit(LR_PROPENSITY_TRAIN.X.values, LR_PROPENSITY_TRAIN.y.values)
-        y_pred = FMsLR.predict(LR_PROPENSITY_TEST.X.values)
+        y_pred = FMsLR.predict_proba(LR_PROPENSITY_TEST.X.values)
         error = mean_squared_error(y_pred, LR_PROPENSITY_TEST.y.values)
         print(y_pred)
         print(error)
+        assert((0 <= y_pred).all() and (y_pred <= 1).all()) # p は確率
 
 if __name__ == '__main__':
     unittest.main()
