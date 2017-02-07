@@ -6,7 +6,7 @@ from mylibml.metrics import propensity_scored_mse
 
 class MatrixFactorization(BaseEstimator, RegressorMixin):
     def __init__(
-            self, K=40, λ=0.001, σ=0.01, ETA=0.001, BETA1=0.9, BETA2=0.999, EPS=10e-8,
+            self, K=40, λ=0.001, σ=0.001, ETA=0.001, BETA1=0.9, BETA2=0.999, EPS=10e-8,
             THRESHOLD=0.99, LOOP=50, VERBOSE=True):
         self.K = K
         self.λ = λ

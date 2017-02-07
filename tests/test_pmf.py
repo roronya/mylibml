@@ -47,7 +47,7 @@ class TestPropensityMatrixFactorization(unittest.TestCase):
             )
         )
 
-        MF = mylibml.mf.PropensityMatrixFactorization(K=5, λ=0.1)
+        MF = mylibml.mf.PropensityMatrixFactorization(K=5, λ=0.1, σ=1)
         MF.fit(MF_TRAIN.X.assign(propensity=1).values, MF_TRAIN.y.values)
         y_pred = MF.predict(MF_TEST.X.assign(propensity=1).values)
         error = mean_squared_error(y_pred, MF_TEST.y.values)
