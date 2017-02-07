@@ -47,13 +47,15 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
             raise RuntimeError()
         return prediction
 
-    def fit(self, X, y):
+    def fit(self, X, y, w0=None, w=None, V=None):
         fit_start = time.time()
         saturation_counter = 0
         N, D = X.shape
-        w0 = 0
-        w = np.zeros(D)
-        V = np.random.normal(0, self.λ, (D, self.K))
+        w0 = 0 if w0 is None else w0
+        w = np.zeros(D) if w is None else w
+        V = np.random.normal(0, self.λ, (D, self.K)) if V is None else V
+        if w.shape[0] != D or V.shape != (D, self.K):
+            raise ValueError()
         self.coef = w0, w, V
         m_w0 = 0
         v_w0 = 0
@@ -131,16 +133,16 @@ class PropensityFactorizationMachines(FactorizationMachines):
         w0, w, V = self.coef
         return np.array([self._predict(x, w0, w, V) for x in X])
 
-    def fit(self, X, y):
+    def fit(self, X, y, w0=None, w=None, V=None):
         fit_start = time.time()
         saturation_counter = 0
         p = X[:, -1]
         assert((0 <= p).all() and (p <= 1).all()) # p は確率
         X = X[:, :-1]
         N, D = X.shape
-        w0 = 0
-        w = np.zeros(D)
-        V = np.random.normal(0, self.λ, (D, self.K))
+        w0 = 0 if w0 is None else w0
+        w = np.zeros(D) if w is None else w
+        V = np.random.normal(0, self.λ, (D, self.K)) if V is None else V
         self.coef = w0, w, V
         m_w0 = 0
         v_w0 = 0
@@ -251,13 +253,13 @@ class FactorizationMachinesLogisticRegression(BaseEstimator, ClassifierMixin):
             raise RuntimeError()
         return prediction
 
-    def fit(self, X, y):
+    def fit(self, X, y, w0=None, w=None, V=None):
         fit_start = time.time()
         saturation_counter = 0
         N, D = X.shape
-        w0 = 0
-        w = np.zeros(D)
-        V = np.random.normal(0, self.λ, (D, self.K))
+        w0 = 0 if w0 is None else w0
+        w = np.zeros(D) if w is None else w
+        V = np.random.normal(0, self.λ, (D, self.K)) if V is None else V
         self.coef = w0, w, V
         m_w0 = 0
         v_w0 = 0

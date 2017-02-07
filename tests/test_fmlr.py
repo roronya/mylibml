@@ -98,8 +98,9 @@ class TestFactorizationMachinesLogisticRegression(unittest.TestCase):
             )
         )
 
+        N, D = LR_PROPENSITY_TRAIN.X.shape
         FMsLR = mylibml.fm.FactorizationMachinesLogisticRegression(K=5, λ=0.1, LOOP=5)
-        FMsLR.fit(LR_PROPENSITY_TRAIN.X.values, LR_PROPENSITY_TRAIN.y.values)
+        FMsLR.fit(LR_PROPENSITY_TRAIN.X.values, LR_PROPENSITY_TRAIN.y.values, 0, np.zeros(D), np.random.normal(0, 0.01, (D, 5)))
         y_pred = FMsLR.predict_proba(LR_PROPENSITY_TEST.X.values)
         error = mean_squared_error(y_pred, LR_PROPENSITY_TEST.y.values)
         print(y_pred)

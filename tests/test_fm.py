@@ -78,7 +78,8 @@ class TestFactorizationMachines(unittest.TestCase):
         )
 
         FMs = mylibml.fm.FactorizationMachines(K=10, λ=0.01)
-        FMs.fit(FMs_TRAIN.X.values, FMs_TRAIN.y.values)
+        N, D = FMs_TRAIN.X.shape
+        FMs.fit(FMs_TRAIN.X.values, FMs_TRAIN.y.values, 0, np.zeros(D), np.random.normal(0, 0.01, (D, 10)))
         y_pred = FMs.predict(FMs_TEST.X.values)
         error = mean_squared_error(y_pred, FMs_TEST.y.values)
         print(error)
