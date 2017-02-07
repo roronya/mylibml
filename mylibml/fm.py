@@ -6,11 +6,12 @@ from mylibml.metrics import propensity_scored_mse
 
 class FactorizationMachines(BaseEstimator, RegressorMixin):
     def __init__(
-            self, K=40, λ=0.001,
+            self, K=40, λ=0.001, σ=0.01,
             ETA=0.001, BETA1=0.9, BETA2=0.999, EPS=10e-8,
             THRESHOLD=0.99, LOOP=50, VERBOSE=True):
         self.K = K
         self.λ = λ
+        self.σ = σ
         self.ETA = ETA
         self.BETA1 = BETA1
         self.BETA2 = BETA2
@@ -53,7 +54,7 @@ class FactorizationMachines(BaseEstimator, RegressorMixin):
         N, D = X.shape
         w0 = 0 if w0 is None else w0
         w = np.zeros(D) if w is None else w
-        V = np.random.normal(0, self.λ, (D, self.K)) if V is None else V
+        V = np.random.normal(0, self.σ, (D, self.K)) if V is None else V
         if w.shape[0] != D or V.shape != (D, self.K):
             raise ValueError()
         self.coef = w0, w, V
@@ -142,7 +143,7 @@ class PropensityFactorizationMachines(FactorizationMachines):
         N, D = X.shape
         w0 = 0 if w0 is None else w0
         w = np.zeros(D) if w is None else w
-        V = np.random.normal(0, self.λ, (D, self.K)) if V is None else V
+        V = np.random.normal(0, self.σ, (D, self.K)) if V is None else V
         self.coef = w0, w, V
         m_w0 = 0
         v_w0 = 0
@@ -209,11 +210,12 @@ class PropensityFactorizationMachines(FactorizationMachines):
 
 class FactorizationMachinesLogisticRegression(BaseEstimator, ClassifierMixin):
     def __init__(
-            self, K=40, λ=0.001,
+            self, K=40, λ=0.001, σ=0.01,
             ETA=0.001, BETA1=0.9, BETA2=0.999, EPS=10e-8,
             THRESHOLD=0.99, LOOP=50, VERBOSE=True):
         self.K = K
         self.λ = λ
+        self.σ = σ
         self.ETA = ETA
         self.BETA1 = BETA1
         self.BETA2 = BETA2
@@ -259,7 +261,7 @@ class FactorizationMachinesLogisticRegression(BaseEstimator, ClassifierMixin):
         N, D = X.shape
         w0 = 0 if w0 is None else w0
         w = np.zeros(D) if w is None else w
-        V = np.random.normal(0, self.λ, (D, self.K)) if V is None else V
+        V = np.random.normal(0, self.σ, (D, self.K)) if V is None else V
         self.coef = w0, w, V
         m_w0 = 0
         v_w0 = 0
