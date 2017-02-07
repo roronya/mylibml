@@ -6,10 +6,11 @@ from mylibml.metrics import propensity_scored_mse
 
 class MatrixFactorization(BaseEstimator, RegressorMixin):
     def __init__(
-            self, K=40, λ=0.001, ETA=0.001, BETA1=0.9, BETA2=0.999, EPS=10e-8,
+            self, K=40, λ=0.001, σ=0.01, ETA=0.001, BETA1=0.9, BETA2=0.999, EPS=10e-8,
             THRESHOLD=0.99, LOOP=50, VERBOSE=True):
         self.K = K
         self.λ = λ
+        self.σ = σ
         self.ETA = ETA
         self.BETA1 = BETA1
         self.BETA2 = BETA2
@@ -55,7 +56,7 @@ class MatrixFactorization(BaseEstimator, RegressorMixin):
         assert((X.sum(axis=1) == np.array([2]*N)).all()) # X は全ての行で2つだけ1が立つ
         w0 = 0
         w = np.zeros(D)
-        V = np.random.normal(0, self.λ, (D, self.K))
+        V = np.random.normal(0, self.σ, (D, self.K))
         self.coef = w0, w, V
         m_w0 = 0
         v_w0 = 0
@@ -155,7 +156,7 @@ class PropensityMatrixFactorization(MatrixFactorization):
         assert((X.sum(axis=1) == np.array([2]*N)).all()) # X は全ての行で2つだけ1が立つ
         w0 = 0
         w = np.zeros(D)
-        V = np.random.normal(0, self.λ, (D, self.K))
+        V = np.random.normal(0, self.σ, (D, self.K))
         self.coef = w0, w, V
         m_w0 = 0
         v_w0 = 0
