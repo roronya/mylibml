@@ -136,7 +136,7 @@ class FactorizationMachines(BaseFactorizationMachines, RegressorMixin):
 class PropensityScoredFactorizationMachines(FactorizationMachines):
     def preprocess(self, X):
         α = 1/X[:, -1]
-        if not ((0 <= α).all() and (α <= 1).all()): raise ValueError() # α は確率
+        if not ((0 <= 1/α).all() and (1/α <= 1).all()): raise ValueError() # α は確率
         X = X[:, :-1]
         return X, α
 
