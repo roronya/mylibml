@@ -85,7 +85,7 @@ class BaseMatrixFactorization(BaseEstimator):
                     beta2t = beta2t*self.BETA2
 
                     y_pred = self._predict(X[n], w0, w, V)
-                    e = y_pred - y[n]
+                    e = α * (y_pred - y[n])
                     g_w0 = e
                     m_w0 = self.BETA1*m_w0 + (1-self.BETA1)*g_w0
                     v_w0 = self.BETA2*v_w0 + (1-self.BETA2)*np.square(g_w0)
