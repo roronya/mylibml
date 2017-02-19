@@ -59,7 +59,6 @@ class BaseMatrixFactorization(BaseEstimator):
         saturation_counter = 0
         X, α = self.preprocess(X)
         N, D = X.shape
-        assert((X.sum(axis=1) == np.array([2]*N)).all()) # X は全ての行で2つだけ1が立つ
         w0 = 0
         w = np.zeros(D)
         V = np.random.normal(0, self.σ, (D, self.K))
@@ -85,7 +84,7 @@ class BaseMatrixFactorization(BaseEstimator):
                     beta2t = beta2t*self.BETA2
 
                     y_pred = self._predict(X[n], w0, w, V)
-                    e = α * (y_pred - y[n])
+                    e = α[n] * (y_pred - y[n])
                     g_w0 = e
                     m_w0 = self.BETA1*m_w0 + (1-self.BETA1)*g_w0
                     v_w0 = self.BETA2*v_w0 + (1-self.BETA2)*np.square(g_w0)
