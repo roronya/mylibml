@@ -1,5 +1,4 @@
 import numpy as np
-from sklearn.metrics import mean_squared_error
 
 def dcg(true, pred, K=None):
     pred_arg_sorted = pred.argsort()[::-1]

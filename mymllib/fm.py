@@ -2,7 +2,7 @@ import numpy as np
 import time
 from sklearn.base import BaseEstimator, RegressorMixin, ClassifierMixin
 from sklearn.metrics import mean_squared_error
-from mylibml.metrics import propensity_scored_mse
+from mymllib.metrics import propensity_scored_mse
 
 class BaseFactorizationMachines(BaseEstimator):
     def __init__(
@@ -139,6 +139,10 @@ class PropensityScoredFactorizationMachines(FactorizationMachines):
         if not ((0 <= 1/α).all() and (1/α <= 1).all()): raise ValueError() # α は確率
         X = X[:, :-1]
         return X, α
+
+    def score(self, X, y, sample_weight=None):
+        y_pred = self.predict(X)
+        return 1/propensity_scored_mse(y, y_pred)
 
 class FactorizationMachinesLogisticRegression(BaseFactorizationMachines, ClassifierMixin):
     def _sigmoid(self, y):

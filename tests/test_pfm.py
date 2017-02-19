@@ -1,4 +1,4 @@
-import mylibml
+import mymllib
 import numpy as np
 import pandas as pd
 import os
@@ -77,7 +77,7 @@ class TestPropensityFactorizationMachines(unittest.TestCase):
             )
         )
 
-        PSFMs = mylibml.fm.PropensityScoredFactorizationMachines(K=10, LOOP=1)
+        PSFMs = mymllib.fm.PropensityScoredFactorizationMachines(K=10, LOOP=1)
         N, D = FMs_TRAIN.X.shape
         #PSFMs.fit(FMs_TRAIN.X.assign(propensity=1).values, FMs_TRAIN.y.values, 0, np.zeros(D), np.random.normal(0, 0.01, (D, 10)))
         PSFMs.fit(FMs_TRAIN.X.assign(propensity=1).values, FMs_TRAIN.y.values)

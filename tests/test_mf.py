@@ -1,4 +1,4 @@
-import mylibml
+import mymllib
 import pandas as pd
 import os
 from collections import namedtuple
@@ -47,7 +47,7 @@ class TestMatrixFactorization(unittest.TestCase):
             )
         )
 
-        MF = mylibml.mf.MatrixFactorization(K=5, λ=0.01, σ=0.01)
+        MF = mymllib.mf.MatrixFactorization(K=5, λ=0.01, σ=0.01)
         MF.fit(MF_TRAIN.X.values, MF_TRAIN.y.values)
         y_pred = MF.predict(MF_TEST.X.values)
         error = mean_squared_error(y_pred, MF_TEST.y.values)

@@ -2,7 +2,7 @@ import numpy as np
 import time
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.metrics import mean_squared_error
-from mylibml.metrics import propensity_scored_mse
+from mymllib.metrics import propensity_scored_mse
 
 class BaseMatrixFactorization(BaseEstimator):
     def __init__(
@@ -142,7 +142,7 @@ class MatrixFactorization(BaseMatrixFactorization, RegressorMixin):
     MatrixFactorization for regressor
     """
 
-class PropensityMatrixFactorization(MatrixFactorization):
+class PropensityScoredMatrixFactorization(MatrixFactorization):
     def preprocess(self, X):
         α = 1/X[:, -1]
         if not (0 <= 1/α).all() and (1/α <= 1).all(): raise ValueError('α must be inverse probability.')
@@ -150,3 +150,7 @@ class PropensityMatrixFactorization(MatrixFactorization):
         N, D = X.shape
         if not (X.sum(axis=1) == np.array([2]*N)).all(): raise ValueError('X must be 1 in only 2 on every line.')
         return X, α
+
+    def score(self, X, y, sample_weight=None):
+        y_pred = self.predict(X)
+        return 1/propensity_scored_mse(y, y_pred)

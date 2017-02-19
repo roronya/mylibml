@@ -1,4 +1,4 @@
-import mylibml
+import mymllib
 import numpy as np
 import pandas as pd
 import os
@@ -77,7 +77,7 @@ class TestFactorizationMachines(unittest.TestCase):
             )
         )
 
-        FMs = mylibml.fm.FactorizationMachines(K=10, λ=0.01)
+        FMs = mymllib.fm.FactorizationMachines(K=10, λ=0.01)
         N, D = FMs_TRAIN.X.shape
         FMs.fit(FMs_TRAIN.X.values, FMs_TRAIN.y.values, 0, np.zeros(D), np.random.normal(0, 0.01, (D, 10)))
         y_pred = FMs.predict(FMs_TEST.X.values)
