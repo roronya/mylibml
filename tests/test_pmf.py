@@ -47,8 +47,46 @@ class TestPropensityMatrixFactorization(unittest.TestCase):
             )
         )
 
+        RAW_ITEM = pd.read_csv(
+            'resources/coat/item_features.ascii', header=None, delimiter=' '
+        )
+
+        ITEM = RAW_ITEM.add_prefix('item_f_').reset_index().rename(
+            columns={'index': 'item_id'}
+        )
+
+        RAW_USER = pd.read_csv(
+            'resources/coat/user_features.ascii', header=None, delimiter=' '
+        )
+
+        USER = RAW_USER.add_prefix('user_f_').reset_index().rename(
+            columns={'index': 'user_id'}
+        )
+
+        NB_PROPENSITY = TRAIN.pipe(
+            lambda df: pd.merge(
+                df,
+                TRAIN.pipe(lambda df: df.groupby('rating').size() / df.shape[0]).rename(
+                    'train_rating_prob').reset_index(),
+                on='rating'
+            )
+        ).pipe(
+            lambda df: pd.merge(
+                df,
+                TEST.pipe(lambda df: df.groupby('rating').size() / df.shape[0]).rename(
+                    'test_rating_prob').reset_index(),
+                on='rating'
+            )
+        ).assign(
+            obs_prob=lambda df: df.shape[0] / (ITEM.shape[0] * USER.shape[0])
+        ).assign(
+            propensity=lambda df: df.train_rating_prob * df.obs_prob / df.test_rating_prob
+        ).pipe(
+            lambda df: pd.merge(TRAIN, df, how='left', right_on=['user_id', 'item_id'], left_on=['user_id', 'item_id'])
+        )
+
         MF = mymllib.mf.PropensityScoredMatrixFactorization(K=5, λ=0.1, σ=1)
-        MF.fit(MF_TRAIN.X.assign(propensity=1).values, MF_TRAIN.y.values)
+        MF.fit(MF_TRAIN.X.assign(propensity=NB_PROPENSITY.propensity).values, MF_TRAIN.y.values)
         y_pred = MF.predict(MF_TEST.X.assign(propensity=1).values)
         error = mean_squared_error(y_pred, MF_TEST.y.values)
         print(error)
