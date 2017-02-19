@@ -9,7 +9,7 @@ license
 '''
 
 setup(
-    name='mylibml',
+    name='mymllib',
     version='0.0.1',
     description='mymllib',
     long_description=readme,
