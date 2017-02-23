@@ -3,20 +3,26 @@ import pandas as pd
 import os
 from collections import namedtuple
 from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
 import unittest
 
 class TestPropensityMatrixFactorization(unittest.TestCase):
     def test_fit(self):
         path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'resources/coat')
+
         RAW_TRAIN = pd.read_csv(
-            os.path.join(path, 'train.ascii'), header=None, delimiter=' '
+            'resources/coat/train.ascii', header=None, delimiter=' '
         )
 
-        TRAIN = RAW_TRAIN.reset_index().pipe(
+        VERTICAL_RAW_TRAIN = RAW_TRAIN.reset_index().pipe(
             lambda df: pd.melt(df, id_vars=['index'], value_vars=list(range(300)))
         ).rename(columns={'index': 'user_id', 'variable': 'item_id', 'value': 'rating'}).pipe(
             lambda df: df[df.rating > 0]
         ).reset_index(drop=True)
+
+        TRAIN, VALIDATION = train_test_split(VERTICAL_RAW_TRAIN, test_size=0.2)
+        TRAIN = TRAIN.reset_index(drop=True)
+        VALIDATION = VALIDATION.reset_index(drop=True)
 
         RAW_TEST = pd.read_csv(
             os.path.join(path, 'test.ascii'), header=None, delimiter=' '
@@ -85,8 +91,8 @@ class TestPropensityMatrixFactorization(unittest.TestCase):
             lambda df: pd.merge(TRAIN, df, how='left', right_on=['user_id', 'item_id'], left_on=['user_id', 'item_id'])
         )
 
-        MF = mymllib.mf.PropensityScoredMatrixFactorization(K=5, λ=0.1, σ=1)
-        MF.fit(MF_TRAIN.X.assign(propensity=NB_PROPENSITY.propensity).values, MF_TRAIN.y.values)
+        MF = mymllib.mf.PropensityScoredMatrixFactorization(K=5, λ=0.1, σ=0.0001)
+        MF.fit(MF_TRAIN.X.assign(propensity=NB_PROPENSITY.propensity.values).values, MF_TRAIN.y.values)
         y_pred = MF.predict(MF_TEST.X.assign(propensity=1).values)
         error = mean_squared_error(y_pred, MF_TEST.y.values)
         print(error)
