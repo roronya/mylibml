@@ -3,6 +3,7 @@ import time
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.metrics import mean_squared_error
 from mymllib.metrics import propensity_scored_mse
+import os
 
 class BaseMatrixFactorization(BaseEstimator):
     def __init__(
@@ -135,6 +136,15 @@ class BaseMatrixFactorization(BaseEstimator):
             print('Canceled', flush=True)
             self.coef = w0, w, V
             return self
+
+    def save(self, filepath='.'):
+        w0, w, V = self.coef
+        np.save(os.path.join(filepath, 'w0.csv'), w0)
+        np.save(os.path.join(filepath, 'w.csv'), w)
+        np.save(os.path.join(filepath, 'V.csv'), V)
+
+
+
 
 class MatrixFactorization(BaseMatrixFactorization, RegressorMixin):
     """
