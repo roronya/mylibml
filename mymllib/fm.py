@@ -130,6 +130,7 @@ class BaseFactorizationMachines(BaseEstimator):
             return self
 
     def save(self, filepath='.'):
+        os.makedirs(filepath, exist_ok=True)
         w0, w, V = self.coef
         np.save(os.path.join(filepath, 'w0.csv'), w0)
         np.save(os.path.join(filepath, 'w.csv'), w)
