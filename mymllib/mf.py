@@ -55,14 +55,14 @@ class BaseMatrixFactorization(BaseEstimator):
         if not (X.sum(axis=1) == np.array([2]*N)).all(): raise ValueError('X must be 1 in only 2 on every line.')
         return X, α
 
-    def fit(self, X, y):
+    def fit(self, X, y, w0=None, w=None, V=None):
         fit_start = time.time()
         saturation_counter = 0
         X, α = self.preprocess(X)
         N, D = X.shape
-        w0 = 0
-        w = np.zeros(D)
-        V = np.random.normal(0, self.σ, (D, self.K))
+        w0 = 0 if w0 is None else w0
+        w = np.zeros(D) if w is None else w
+        V = np.random.normal(0, self.σ, (D, self.K)) if V is None else V
         self.coef = w0, w, V
         m_w0 = 0
         v_w0 = 0
