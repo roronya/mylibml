@@ -35,8 +35,7 @@ class BaseFactorizationMachines(BaseEstimator):
 
     def score(self, X, y, sample_weight=None):
         y_pred = self.predict(X)
-        X, α = self.preprocess(X)
-        return 1/mean_squared_error(y, y_pred, α)
+        return 1/mean_squared_error(y, y_pred)
 
     def predict(self, X):
         X, α = self.preprocess(X)
@@ -151,7 +150,8 @@ class PropensityScoredFactorizationMachines(FactorizationMachines):
 
     def score(self, X, y, sample_weight=None):
         y_pred = self.predict(X)
-        return 1/propensity_scored_mse(y, y_pred)
+        X, α = self.preprocess(X)
+        return 1/mean_squared_error(y, y_pred, α)
 
 class FactorizationMachinesLogisticRegression(BaseFactorizationMachines, ClassifierMixin):
     def _sigmoid(self, y):
