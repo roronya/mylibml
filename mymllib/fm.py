@@ -35,7 +35,8 @@ class BaseFactorizationMachines(BaseEstimator):
 
     def score(self, X, y, sample_weight=None):
         y_pred = self.predict(X)
-        return 1/mean_squared_error(y, y_pred)
+        X, α = self.preprocess(X)
+        return 1/mean_squared_error(y, y_pred, α)
 
     def predict(self, X):
         X, α = self.preprocess(X)

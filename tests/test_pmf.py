@@ -96,6 +96,7 @@ class TestPropensityMatrixFactorization(unittest.TestCase):
         y_pred = MF.predict(MF_TEST.X.assign(propensity=1).values)
         error = mean_squared_error(y_pred, MF_TEST.y.values)
         print(error)
+        print(MF.score(MF_TEST.X.assign(propensity=1).values, MF_TEST.y.values))
 
 
 if __name__ == '__main__':

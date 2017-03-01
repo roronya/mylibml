@@ -162,4 +162,5 @@ class PropensityScoredMatrixFactorization(MatrixFactorization):
 
     def score(self, X, y, sample_weight=None):
         y_pred = self.predict(X)
-        return 1/propensity_scored_mse(y, y_pred)
+        X, α = self.preprocess(X)
+        return 1/propensity_scored_mse(y, y_pred, α)
